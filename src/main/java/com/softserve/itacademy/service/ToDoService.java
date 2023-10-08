@@ -1,15 +1,22 @@
 package com.softserve.itacademy.service;
 
-import com.softserve.itacademy.model.ToDo;
-
 import java.util.List;
 
+import com.softserve.itacademy.model.ToDo;
+import com.softserve.itacademy.model.User;
+
 public interface ToDoService {
-    ToDo create(ToDo todo);
-    ToDo readById(long id);
-    ToDo update(ToDo todo);
-    void delete(long id);
+    
+    ToDo addTodo(ToDo todo, User user);
+
+    ToDo updateTodo(ToDo todo);
+
+    void deleteTodo(ToDo todo);
 
     List<ToDo> getAll();
-    List<ToDo> getByUserId(long userId);
+
+    List<ToDo> getByUser(User user);
+
+    ToDo getByUserTitle(User user, String title);
+    
 }

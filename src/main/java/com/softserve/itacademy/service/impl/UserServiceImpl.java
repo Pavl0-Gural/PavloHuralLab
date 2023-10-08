@@ -1,73 +1,91 @@
 package com.softserve.itacademy.service.impl;
 
-import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.User;
-import com.softserve.itacademy.repository.UserRepository;
 import com.softserve.itacademy.service.UserService;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service("userServiceImpl")
-public class UserServiceImpl implements UserService, UserDetailsService {
+@Service
+public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
+    private List<User> users;
+    private int index;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public UserServiceImpl() {
+        users = new ArrayList<>();
     }
 
     @Override
-    public User create(User role) {
-        if (role != null) {
-            role.setPassword(passwordEncoder.encode(role.getPassword()));
-            return userRepository.save(role);
-        }
-        throw new NullEntityReferenceException("User cannot be 'null'");
-    }
-
-    @Override
-    public User readById(long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("User with id " + id + " not found"));
-    }
-
-    @Override
-    public User update(User role) {
-        if (role != null) {
-            readById(role.getId());
-            role.setPassword(passwordEncoder.encode(role.getPassword()));
-            return userRepository.save(role);
-        }
-        throw new NullEntityReferenceException("User cannot be 'null'");
-    }
-
-    @Override
-    public void delete(long id) {
-        userRepository.delete(readById(id));
-    }
-
-    @Override
-    public List<User> getAll() {
-        List<User> users = userRepository.findAll();
-        return users.isEmpty() ? new ArrayList<>() : users;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not Found");
-        }
+    public User addUser(User user)
+    {
+        users.add( user );
+        index = users.indexOf( user );
         return user;
+    }
+
+    @Override
+    public User updateUser(User user)
+    {
+        User toUpdate = users.get( index );
+        users.remove( toUpdate );
+        users.add( index, user );
+        return user;
+    }
+
+    @Override
+    public void deleteUser( User user )
+    {
+        users.remove( user );
+    }
+
+    @Override
+    public List<User> getAll()
+    {
+        return users;
+    }
+
+    public User getUserById( int id )
+    {
+        int index = id - 1;
+        if( index < users.size() )
+        {
+            User user = users.get( index );
+            return user;
+        }
+        else
+        {
+            throw new IllegalArgumentException( "No user with such id" );
+        }
+    }
+
+    public User updateUserById( int id, User user )
+    {
+        int index = id - 1;
+        if( index < users.size() )
+        {
+            User toUpdate = users.get( index );
+            users.remove( toUpdate );
+            users.add( index, user );
+            return user;
+        }
+        else
+        {
+            throw new IllegalArgumentException( "No user with such id" );
+        }
+    }
+
+    public void deleteUserById( int id )
+    {
+        int index = id - 1;
+        if( index < users.size() )
+        {
+            users.remove( index );
+        }
+        else
+        {
+            throw new IllegalArgumentException( "No user with such id" );
+        }
     }
 }

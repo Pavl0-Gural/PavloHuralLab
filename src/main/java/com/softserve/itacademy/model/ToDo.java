@@ -1,96 +1,103 @@
 package com.softserve.itacademy.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-@Entity
-@Table(name = "todos")
 public class ToDo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
 
-    @NotBlank(message = "The 'title' cannot be empty")
-    @Column(name = "title", nullable = false, unique = true)
     private String title;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "todo", cascade = CascadeType.REMOVE)
     private List<Task> tasks;
 
-    @ManyToMany
-    @JoinTable(name = "todo_collaborator",
-            joinColumns = @JoinColumn(name = "todo_id"),
-            inverseJoinColumns = @JoinColumn(name = "collaborator_id"))
-    private List<User> collaborators;
-
-    public ToDo() {
+    public ToDo( String title, LocalDateTime createdAt, User owner )
+    {
+        this.title = title;
+        this.createdAt = createdAt;
+        this.owner = owner;
+        tasks = new ArrayList<>();
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
+    public String getTitle()
+    {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle( String title )
+    {
         this.title = title;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt()
+    {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt( LocalDateTime createdAt )
+    {
         this.createdAt = createdAt;
     }
 
-    public User getOwner() {
+    public User getOwner()
+    {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner( User owner )
+    {
         this.owner = owner;
     }
 
-    public List<Task> getTasks() {
+    public List<Task> getTasks()
+    {
         return tasks;
     }
 
-    public void setTasks(List<Task> tasks) {
+    public void setTasks( List<Task> tasks )
+    {
         this.tasks = tasks;
     }
 
-    public List<User> getCollaborators() {
-        return collaborators;
-    }
+    @Override
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
+            return true;
+        }
+        if( o == null || getClass() != o.getClass() )
+        {
+            return false;
+        }
 
-    public void setCollaborators(List<User> users) {
-        this.collaborators = users;
+        ToDo toDo = (ToDo) o;
+
+        if( title != null ? !title.equals( toDo.title ) : toDo.title != null )
+        {
+            return false;
+        }
+        if( createdAt != null ? !createdAt.equals( toDo.createdAt ) : toDo.createdAt != null )
+        {
+            return false;
+        }
+        if( owner != null ? !owner.equals( toDo.owner ) : toDo.owner != null )
+        {
+            return false;
+        }
+        return tasks != null ? tasks.equals( toDo.tasks ) : toDo.tasks == null;
     }
 
     @Override
-    public String toString() {
-        return "ToDo {" +
-                "id = " + id +
-                ", title = '" + title + '\'' +
-                ", createdAt = " + createdAt +
-                "} ";
+    public int hashCode()
+    {
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + ( createdAt != null ? createdAt.hashCode() : 0 );
+        result = 31 * result + ( owner != null ? owner.hashCode() : 0 );
+        result = 31 * result + ( tasks != null ? tasks.hashCode() : 0 );
+        return result;
     }
 }

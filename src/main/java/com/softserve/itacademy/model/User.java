@@ -1,157 +1,129 @@
 package com.softserve.itacademy.model;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import javax.persistence.*;
-import javax.validation.constraints.Pattern;
-import java.util.Collection;
 import java.util.List;
 
-@Entity
-@Table(name = "users")
-public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class User {
 
-    @Pattern(regexp = "[A-Z][a-z]+",
-            message = "Must start with a capital letter followed by one or more lowercase letters")
-    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Pattern(regexp = "[A-Z][a-z]+",
-            message = "Must start with a capital letter followed by one or more lowercase letters")
-    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Pattern(regexp = "[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}", message = "Must be a valid e-mail address")
-    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-//    @Pattern(regexp = "(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}",
-//            message = "Must be minimum 6 characters, at least one letter and one number")
-    @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE)
     private List<ToDo> myTodos;
 
-    @ManyToMany
-    @JoinTable(name = "todo_collaborator",
-        joinColumns = @JoinColumn(name = "collaborator_id"),
-        inverseJoinColumns = @JoinColumn(name = "todo_id"))
-    private List<ToDo> otherTodos;
-
-    public User() {
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
+    public User( String firstName, String lastName, String email, String password )
+    {
         this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(role);
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public String getFirstName()
+    {
+        return firstName;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setFirstName( String firstName )
+    {
+        this.firstName = firstName;
     }
 
-    public List<ToDo> getMyTodos() {
-        return myTodos;
+    public String getLastName()
+    {
+        return lastName;
     }
 
-    public void setMyTodos(List<ToDo> myTodos) {
-        this.myTodos = myTodos;
+    public void setLastName( String lastName )
+    {
+        this.lastName = lastName;
     }
 
-    public List<ToDo> getOtherTodos() {
-        return otherTodos;
-    }
-
-    public void setOtherTodos(List<ToDo> todos) {
-        this.otherTodos = todos;
-    }
-
-    public String getUsername() {
+    public String getEmail()
+    {
         return email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    public void setEmail( String email )
+    {
+        this.email = email;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword( String password )
+    {
+        this.password = password;
+    }
+
+    public List<ToDo> getMyTodos()
+    {
+        return myTodos;
+    }
+
+    public void setMyTodos( List<ToDo> myTodos )
+    {
+        this.myTodos = myTodos;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
+            return true;
+        }
+        if( o == null || getClass() != o.getClass() )
+        {
+            return false;
+        }
+
+        User user = (User) o;
+
+        if( firstName != null ? !firstName.equals( user.firstName ) : user.firstName != null )
+        {
+            return false;
+        }
+        if( lastName != null ? !lastName.equals( user.lastName ) : user.lastName != null )
+        {
+            return false;
+        }
+        if( email != null ? !email.equals( user.email ) : user.email != null )
+        {
+            return false;
+        }
+        if( password != null ? !password.equals( user.password ) : user.password != null )
+        {
+            return false;
+        }
+        return myTodos != null ? myTodos.equals( user.myTodos ) : user.myTodos == null;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+    public int hashCode()
+    {
+        int result = firstName != null ? firstName.hashCode() : 0;
+        result = 31 * result + ( lastName != null ? lastName.hashCode() : 0 );
+        result = 31 * result + ( email != null ? email.hashCode() : 0 );
+        result = 31 * result + ( password != null ? password.hashCode() : 0 );
+        result = 31 * result + ( myTodos != null ? myTodos.hashCode() : 0 );
+        return result;
     }
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "User {" +
-                "id = " + id +
-                ", firstName = '" + firstName + '\'' +
-                ", lastName = '" + lastName + '\'' +
-                ", email = '" + email + '\'' +
-                ", password = '" + password + '\'' +
-                ", role = " + role +
-                "} ";
+    public String toString()
+    {
+        return "User{" +
+               "firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
+               ", email='" + email + '\'' +
+               ", password='" + password + '\'' +
+               '}';
     }
 }

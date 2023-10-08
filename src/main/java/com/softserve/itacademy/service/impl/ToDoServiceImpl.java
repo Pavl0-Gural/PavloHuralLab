@@ -1,61 +1,102 @@
 package com.softserve.itacademy.service.impl;
 
-import com.softserve.itacademy.exception.NullEntityReferenceException;
-import com.softserve.itacademy.model.ToDo;
-import com.softserve.itacademy.repository.ToDoRepository;
-import com.softserve.itacademy.service.ToDoService;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.softserve.itacademy.model.ToDo;
+import com.softserve.itacademy.model.User;
+import com.softserve.itacademy.service.ToDoService;
+import com.softserve.itacademy.service.UserService;
 
 @Service
 public class ToDoServiceImpl implements ToDoService {
 
-    private ToDoRepository todoRepository;
+    private UserService userService;
 
-    public ToDoServiceImpl(ToDoRepository todoRepository) {
-        this.todoRepository = todoRepository;
+    @Autowired
+    public ToDoServiceImpl(UserService userService) {
+        this.userService = userService;
     }
 
-    @Override
-    public ToDo create(ToDo role) {
-        if (role != null) {
-            return todoRepository.save(role);
+    public ToDo addTodo(ToDo todo, User user) {
+        int i = 0;
+        for(User s : userService.getAll()) {
+            if (s.equals(user)) {
+                List<ToDo> todoes = new ArrayList<>();
+                todoes.add(todo);
+                s.setMyTodos(todoes);
+                return todo;
+            }
+            else if (i == userService.getAll().size()-1) {
+                user.getMyTodos().add(todo);
+                userService.addUser(user);
+                return todo;
+            }
+            i++;
         }
-        throw new NullEntityReferenceException("ToDo cannot be 'null'");
+        return null;
     }
 
-    @Override
-    public ToDo readById(long id) {
-        return todoRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("ToDo with id " + id + " not found"));
-    }
-
-    @Override
-    public ToDo update(ToDo role) {
-        if (role != null) {
-            readById(role.getId());
-            return todoRepository.save(role);
+    public ToDo updateTodo(ToDo todo) {
+        for(User s : userService.getAll()) {
+            s.getMyTodos().add(todo);
         }
-        throw new NullEntityReferenceException("ToDo cannot be 'null'");
+        return todo;
     }
 
-    @Override
-    public void delete(long id) {
-        todoRepository.delete(readById(id));
+    public void deleteTodo(ToDo todo) {
+        for (User s : userService.getAll()) {
+            List<ToDo> toDoList = s.getMyTodos();
+            for (ToDo t : toDoList) {
+                if (t.equals(todo)) {
+                    s.getMyTodos().remove(t);
+                }
+                if (toDoList.size()==0){
+                    break;
+                }
+            }
+        }
     }
 
-    @Override
     public List<ToDo> getAll() {
-        List<ToDo> todos = todoRepository.findAll();
-        return todos.isEmpty() ? new ArrayList<>() : todos;
+        List<ToDo> todo = new ArrayList<>();
+        for (User s : userService.getAll()) {
+            if (s.getMyTodos() != null) {
+                List<ToDo> temp = new ArrayList<>(s.getMyTodos());
+                todo.addAll(temp);
+            }
+        }
+        return todo;
     }
 
-    @Override
-    public List<ToDo> getByUserId(long userId) {
-        List<ToDo> todos = todoRepository.getByUserId(userId);
-        return todos.isEmpty() ? new ArrayList<>() : todos;
+    public List<ToDo> getByUser(User user) {
+        List<ToDo> todo = new ArrayList<>();
+        int i = 0;
+        for(User s : userService.getAll()) {
+            if (s.equals(user)) {
+                todo.addAll(s.getMyTodos());
+            }
+            else if (i == userService.getAll().size()-1) {
+                return null;
+            }
+            i++;
+        }
+        return todo;
+    }
+
+    public ToDo getByUserTitle(User user, String title) {
+        for(User s : userService.getAll()) {
+            if (s.equals(user)) {
+                for(ToDo todo : s.getMyTodos()) {
+                    if (todo.getTitle().equals(title)) {
+                        return todo;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
