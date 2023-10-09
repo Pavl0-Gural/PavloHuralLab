@@ -1,91 +1,68 @@
 package com.softserve.itacademy.service.impl;
 
+import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.User;
+import com.softserve.itacademy.repository.UserRepository;
 import com.softserve.itacademy.service.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private List<User> users;
-    private int index;
+    private UserRepository userRepository;
 
-    public UserServiceImpl() {
-        users = new ArrayList<>();
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public User addUser(User user)
-    {
-        users.add( user );
-        index = users.indexOf( user );
-        return user;
+    public User create(User user) {
+        try {
+            return userRepository.save(user);
+        } catch (IllegalArgumentException e) {
+            throw new NullEntityReferenceException("User cannot be 'null'");
+        }
     }
 
     @Override
-    public User updateUser(User user)
-    {
-        User toUpdate = users.get( index );
-        users.remove( toUpdate );
-        users.add( index, user );
-        return user;
+    public User readById(long id) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        throw new EntityNotFoundException("User with id " + id + " not found");
     }
 
     @Override
-    public void deleteUser( User user )
-    {
-        users.remove( user );
+    public User update(User user) {
+        if (user != null) {
+            User oldUser = readById(user.getId());
+            if (oldUser != null) {
+                return userRepository.save(user);
+            }
+        }
+        throw new NullEntityReferenceException("User cannot be 'null'");
     }
 
     @Override
-    public List<User> getAll()
-    {
-        return users;
-    }
-
-    public User getUserById( int id )
-    {
-        int index = id - 1;
-        if( index < users.size() )
-        {
-            User user = users.get( index );
-            return user;
-        }
-        else
-        {
-            throw new IllegalArgumentException( "No user with such id" );
+    public void delete(long id) {
+        User user = readById(id);
+        if (user != null) {
+            userRepository.delete(user);
+        } else {
+            throw new EntityNotFoundException("User with id " + id + " not found");
         }
     }
 
-    public User updateUserById( int id, User user )
-    {
-        int index = id - 1;
-        if( index < users.size() )
-        {
-            User toUpdate = users.get( index );
-            users.remove( toUpdate );
-            users.add( index, user );
-            return user;
-        }
-        else
-        {
-            throw new IllegalArgumentException( "No user with such id" );
-        }
+    @Override
+    public List<User> getAll() {
+        List<User> users = userRepository.findAll();
+        return users.isEmpty() ? new ArrayList<>() : users;
     }
 
-    public void deleteUserById( int id )
-    {
-        int index = id - 1;
-        if( index < users.size() )
-        {
-            users.remove( index );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "No user with such id" );
-        }
-    }
 }

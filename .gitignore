@@ -75,7 +75,3 @@ hs_err_pid*
 /.idea/
 *.iml
 *.ucls
-
-# Ignore log
-*.log
-*.log.[1234567890]

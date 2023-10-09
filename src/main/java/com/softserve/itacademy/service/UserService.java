@@ -1,17 +1,14 @@
 package com.softserve.itacademy.service;
 
-import java.util.List;
-
 import com.softserve.itacademy.model.User;
 
+import java.util.List;
+
 public interface UserService {
-    
-    User addUser(User user);
-
-    User updateUser(User user);
-
-    void deleteUser(User user);
-
+    User create(User user);
+    User readById(long id);
+    User update(User user);
+    void delete(long id);
     List<User> getAll();
 
 }
